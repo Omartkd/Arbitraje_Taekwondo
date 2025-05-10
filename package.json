@@ -1,5 +1,5 @@
 {
-  "name": "arbitraje-taekwondo",
+  "name": "arbitraje_taekwondo",
   "version": "1.0.0",
   "description": "Sistema de arbitraje para competiciones de Taekwondo con puntuación en tiempo real",
   "main": "server.js",
