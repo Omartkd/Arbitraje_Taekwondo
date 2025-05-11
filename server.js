@@ -19,7 +19,7 @@ app.use(cors({
 }));
 
 // Servir archivos estáticos
-app.use(express.static('index.html'));
+app.use(express.static('public'));
 
 // Configuración mejorada de Socket.IO
 const io = new Server(server, {
