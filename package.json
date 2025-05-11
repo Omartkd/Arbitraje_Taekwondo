@@ -18,8 +18,7 @@
 
      "scripts": {
     "start": "node server.js"
-     }
-}
+     },
          
     "devDependencies": {
         "grunt": "^1.6.1",
