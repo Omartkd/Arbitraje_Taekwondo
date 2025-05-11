@@ -526,7 +526,11 @@
 <title>Boleta de Arbitraje</title>
 <script src="/socket.io/socket.io.js"></script>
 <script>
-  const socket = io();
+  const socket = io({
+  transports: ['websocket'],
+  upgrade: false,
+  forceNew: true
+});
   const blueHeadKickButton = document.getElementById('blueHeadKickButton');
   const redHeadKickButton = document.getElementById('redHeadKickButton');
   const blueBodykickButton = document.getElementById('bluebodykickButton');
