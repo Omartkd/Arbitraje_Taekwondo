@@ -614,59 +614,27 @@
 
   // Manejo de actualizaciones del servidor
   socket.on('actualizarPuntaje', (data) => {
-    if (data && data.blueScore !== undefined && data.redScore !== undefined) {
-      document.getElementById('blueScore').textContent = data.blueScore;
-      document.getElementById('redScore').textContent = data.redScore;
-    } else {
-      console.error('Datos de puntuación inválidos:', data);
-    }
+    // Actualiza la interfaz de usuario con los nuevos puntajes
+    document.getElementById('blueScore').textContent = data.blueScore;
+    document.getElementById('redScore').textContent = data.redScore;
   });
 
   socket.on('actualizarKamgeon', (data) => {
-    if (data && data.blueKamgeon !== undefined && data.redKamgeon !== undefined) {
-      document.getElementById('kamgeon-blue-score').textContent = data.blueKamgeon;
-      document.getElementById('kamgeon-red-score').textContent = data.redKamgeon;
-    }
+    document.getElementById('kamgeon-blue-score').textContent = data.blueKamgeon;
+    document.getElementById('kamgeon-red-score').textContent = data.redKamgeon;
+
   });
 
   socket.on('victoriaPorDiferencia', (data) => {
-    if (!data) return;
-    
     const winnerName = data.winner === 'azul' ? 'AZUL' : 'ROJO';
-    const message = `¡EQUIPO ${winnerName} GANA POR DIFERENCIA DE 12 PUNTOS!\n\nPuntuación final:\nAzul: ${data.blueScore}\nRojo: ${data.redScore}`;
+    alert(`¡EQUIPO ${winnerName} GANA POR DIFERENCIA DE 12 PUNTOS!\n\nPuntuación final:\nAzul: ${data.blueScore}\nRojo: ${data.redScore}`);
     
-    // Modal mejorado en lugar de alert
-    const modal = document.createElement('div');
-    modal.style = `
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.8); display: flex; justify-content: center;
-      align-items: center; z-index: 1000; color: white; font-size: 2em;
-      flex-direction: column; text-align: center;
-    `;
-    modal.innerHTML = `
-      <div style="background: #333; padding: 2em; border-radius: 10px;">
-        <h2>${winnerName} GANA!</h2>
-        <p>Diferencia: ${data.difference} puntos</p>
-        <p>Azul: ${data.blueScore} - Rojo: ${data.redScore}</p>
-        <button onclick="this.parentNode.parentNode.remove()" 
-          style="padding: 10px 20px; margin-top: 20px; font-size: 1rem;">
-          Cerrar
-        </button>
-      </div>
-    `;
-    document.body.appendChild(modal);
-    
-    // Deshabilitar botones
+    // Opcional: Deshabilitar botones de puntuación
     document.querySelectorAll('.puntuacion-btn').forEach(btn => {
-      btn.disabled = true;
+        btn.disabled = true;
     });
-  });
+});
 
-  socket.on('gameReset', () => {
-    document.querySelectorAll('.puntuacion-btn').forEach(btn => {
-      btn.disabled = false;
-    });
-  });
 </script>
   </body>
   </html>
