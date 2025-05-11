@@ -7,10 +7,10 @@ const cors = require('cors');
 
 // Configuración para producción
 const isProduction = process.env.NODE_ENV === 'production';
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 const CLIENT_URL = isProduction 
   ? 'https://arbitraje-taekwondo.onrender.com' 
-  : 'http://localhost:3000';
+  : 'http://localhost:4000';
 
 // Configuración de CORS
 app.use(cors({
