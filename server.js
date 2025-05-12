@@ -1,11 +1,7 @@
 const express = require('express');
 const app = express();
-const https = require('https');  // Cambiado de http a https
-const fs = require('fs');       // Necesario para SSL
-const server = https.createServer({
-  key: fs.readFileSync('server.key'),
-  cert: fs.readFileSync('server.crt')
-}, app);
+const http = require('http');  // Usa http normal
+const server = http.createServer(app);  // Sin configuración SSL
 const { Server } = require("socket.io");
 const io = new Server(server);
 
@@ -239,6 +235,8 @@ function checkScoreDifference() {
   }
 
 // Verificar que el servidor esté escuchando en el puerto 3000
-server.listen(443, () => {
-    console.log('Servidor escuchando en https://arbitraje-taekwondo.onrender.com');
+const PORT = process.env.PORT || 3000;
+
+server.listen(PORT, () => {
+    console.log(`Servidor escuchando en puerto ${PORT}`);
 });
