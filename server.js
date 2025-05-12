@@ -1,14 +1,13 @@
 const express = require('express');
 const app = express();
-const http = require('http');
-const server = http.createServer(app);
+const https = require('https');  // Cambiado de http a https
+const fs = require('fs');       // Necesario para SSL
+const server = https.createServer({
+  key: fs.readFileSync('server.key'),
+  cert: fs.readFileSync('server.crt')
+}, app);
 const { Server } = require("socket.io");
-const io = new Server(server, {
-  cors: {
-    origin: "https://arbitraje-taekwondo.onrender.com",
-    credentials: true
-  }
-});
+const io = new Server(server);
 
 app.use(express.static('public'));
 
@@ -240,6 +239,6 @@ function checkScoreDifference() {
   }
 
 // Verificar que el servidor esté escuchando en el puerto 3000
-server.listen(hppts:arbitraje-taekwondo.onrender.com, () => {
-    console.log('Servidor escuchando en http://localhost:3000');
+server.listen(443, () => {
+    console.log('Servidor escuchando en https://arbitraje-taekwondo.onrender.com');
 });
