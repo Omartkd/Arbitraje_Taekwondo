@@ -240,6 +240,6 @@ function checkScoreDifference() {
   }
 
 // Verificar que el servidor esté escuchando en el puerto 3000
-server.listen(3000, () => {
+server.listen(hppts:arbitraje-taekwondo.onrender.com, () => {
     console.log('Servidor escuchando en http://localhost:3000');
 });
