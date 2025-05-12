@@ -526,93 +526,93 @@
 <title>Boleta de Arbitraje</title>
 <script src="/socket.io/socket.io.js"></script>
 <script>
-  // Configuración de conexión Socket.IO para producción
-  const socket = io({
-    transports: ['websocket'],
-    upgrade: false,
-    reconnection: true,
-    reconnectionAttempts: 5,
-    reconnectionDelay: 1000,
-    timeout: 20000,
-    query: {
-      clientType: 'scoreboard'
-    }
+  const socket = io();
+  const blueHeadKickButton = document.getElementById('blueHeadKickButton');
+  const redHeadKickButton = document.getElementById('redHeadKickButton');
+  const blueBodykickButton = document.getElementById('bluebodykickButton');
+  const redBodykickButton = document.getElementById('redbodykickButton');
+  const blueSpinningBobykickButton = document.getElementById('blueSpinningBodykickButton');
+  const redSpinningBodykickButton = document.getElementById('redSpinningBodykickButton');
+  const blueSpinningHeadkickButton = document.getElementById('blueSpinningHeadkickButton');
+  const redSpinningHeadkickButton = document.getElementById('redSpinningHeadkickButton');
+  const bluePunchButton = document.getElementById('bluePunchButton');
+  const redPunchButton = document.getElementById('redPunchButton');
+  const blueSubtractButton = document.getElementById('blueSubtractButton');
+  const redSubtractButton = document.getElementById('redSubtractButton');
+  const blueAddButton = document.getElementById('blueAddButton');
+  const redAddButton = document.getElementById('redAddButton'); 
+  const blueKamgeonButton = document.getElementById('blueKamgeonButton');
+  const redKamgeonButton = document.getElementById('redKamgeonButton'); 
+  
+  
+  blueHeadKickButton.addEventListener('click', () => {
+    socket.emit('puntuacionCabeza', { equipo: 'azul', timestamp: Date.now() });
   });
 
-  // Manejo de eventos de conexión
-  socket.on('connect', () => {
-    console.log('Conectado al servidor de arbitraje');
-    document.querySelectorAll('.puntuacion-btn').forEach(btn => {
-      btn.disabled = false;
-    });
+  redHeadKickButton.addEventListener('click', () => {
+    socket.emit('puntuacionCabeza', { equipo: 'rojo', timestamp: Date.now() });
   });
 
-  socket.on('disconnect', (reason) => {
-    console.log('Desconectado del servidor:', reason);
-    if (reason === 'io server disconnect') {
-      socket.connect();
-    }
+  blueBodyKickButton.addEventListener('click', () => {
+    socket.emit('puntuacionPeto', { equipo: 'azul', timestamp: Date.now() });
   });
 
-  socket.on('connect_error', (error) => {
-    console.error('Error de conexión:', error.message);
-    setTimeout(() => socket.connect(), 5000);
+  redBodyKickButton.addEventListener('click', () => {
+    socket.emit('puntuacionPeto', { equipo: 'rojo', timestamp: Date.now() });
   });
 
-  // Mapeo de botones corregido (IDs exactos)
-  const buttons = {
-    blueHeadKick: document.getElementById('blueHeadKickButton'),
-    redHeadKick: document.getElementById('redHeadKickButton'),
-    blueBodyKick: document.getElementById('blueBodyKickButton'), // Corregido de bluebodykickButton
-    redBodyKick: document.getElementById('redBodyKickButton'),   // Corregido de redbodykickButton
-    blueSpinningBodyKick: document.getElementById('blueSpinningBodyKickButton'), // Corregido
-    redSpinningBodyKick: document.getElementById('redSpinningBodyKickButton'),   // Corregido
-    blueSpinningHeadKick: document.getElementById('blueSpinningHeadKickButton'),
-    redSpinningHeadKick: document.getElementById('redSpinningHeadKickButton'),
-    bluePunch: document.getElementById('bluePunchButton'),
-    redPunch: document.getElementById('redPunchButton'),
-    blueSubtract: document.getElementById('blueSubtractButton'),
-    redSubtract: document.getElementById('redSubtractButton'),
-    blueAdd: document.getElementById('blueAddButton'),
-    redAdd: document.getElementById('redAddButton'),
-    blueKamgeon: document.getElementById('blueKamgeonButton'),
-    redKamgeon: document.getElementById('redKamgeonButton')
-  };
+  blueSpinningBodyKickButton.addEventListener('click', () => {
+    socket.emit('puntuacionGiroPeto', { equipo: 'azul', timestamp: Date.now() });
+  });
 
-  // Asignación de eventos mejorada
-  const setupButton = (button, eventName, team) => {
-    if (!button) {
-      console.error(`Botón no encontrado para ${eventName} (${team})`);
-      return;
-    }
-    button.addEventListener('click', () => {
-      socket.emit(eventName, { 
-        equipo: team, 
-        timestamp: Date.now() 
-      });
-    });
-    button.classList.add('puntuacion-btn');
-  };
+  redSpinningBodyKickButton.addEventListener('click', () => {
+    socket.emit('puntuacionGiroPeto', { equipo: 'rojo', timestamp: Date.now() });
+  });
 
-  // Configuración de todos los botones
-  setupButton(buttons.blueHeadKick, 'puntuacionCabeza', 'azul');
-  setupButton(buttons.redHeadKick, 'puntuacionCabeza', 'rojo');
-  setupButton(buttons.blueBodyKick, 'puntuacionPeto', 'azul');
-  setupButton(buttons.redBodyKick, 'puntuacionPeto', 'rojo');
-  setupButton(buttons.blueSpinningBodyKick, 'puntuacionGiroPeto', 'azul');
-  setupButton(buttons.redSpinningBodyKick, 'puntuacionGiroPeto', 'rojo');
-  setupButton(buttons.blueSpinningHeadKick, 'puntuacionGiroCabeza', 'azul');
-  setupButton(buttons.redSpinningHeadKick, 'puntuacionGiroCabeza', 'rojo');
-  setupButton(buttons.bluePunch, 'puntuacionPuño', 'azul');
-  setupButton(buttons.redPunch, 'puntuacionPuño', 'rojo');
-  setupButton(buttons.blueSubtract, 'puntuacionRestar', 'azul');
-  setupButton(buttons.redSubtract, 'puntuacionRestar', 'rojo');
-  setupButton(buttons.blueAdd, 'puntuacionSumar', 'azul');
-  setupButton(buttons.redAdd, 'puntuacionSumar', 'rojo');
-  setupButton(buttons.blueKamgeon, 'puntuacionKamgeon', 'azul');
-  setupButton(buttons.redKamgeon, 'puntuacionKamgeon', 'rojo');
+  blueSpinningHeadKickButton.addEventListener('click', () => {
+    socket.emit('puntuacionGiroCabeza', { equipo: 'azul', timestamp: Date.now() });
+  });
 
-  // Manejo de actualizaciones del servidor
+  redSpinningHeadKickButton.addEventListener('click', () => {
+    socket.emit('puntuacionGiroCabeza', { equipo: 'rojo', timestamp: Date.now() });
+  });
+
+  bluePunchButton.addEventListener('click', () => {
+    socket.emit('puntuacionPuño', { equipo: 'azul', timestamp: Date.now() });
+  });
+
+  redPunchButton.addEventListener('click', () => {
+    socket.emit('puntuacionPuño', { equipo: 'rojo', timestamp: Date.now() });
+  });
+
+  blueSubtractButton.addEventListener('click', () => {
+    socket.emit('puntuacionRestar', { equipo: 'azul', timestamp: Date.now() });
+  });
+
+  redSubtractButton.addEventListener('click', () => {
+    socket.emit('puntuacionRestar', { equipo: 'rojo', timestamp: Date.now() });
+
+  });
+
+  blueAddButton.addEventListener('click', () => {
+    socket.emit('puntuacionSumar', { equipo: 'azul', timestamp: Date.now() });
+  });
+
+  redAddButton.addEventListener('click', () => {
+    socket.emit('puntuacionSumar', { equipo: 'rojo', timestamp: Date.now() });
+
+  });
+
+  blueKamgeonButton.addEventListener('click', () => {
+    socket.emit('puntuacionKamgeon', { equipo: 'azul', timestamp: Date.now() });
+  });
+
+  redKamgeonButton.addEventListener('click', () => {
+    socket.emit('puntuacionKamgeon', { equipo: 'rojo', timestamp: Date.now() });
+
+  });
+
+
   socket.on('actualizarPuntaje', (data) => {
     // Actualiza la interfaz de usuario con los nuevos puntajes
     document.getElementById('blueScore').textContent = data.blueScore;
@@ -635,6 +635,6 @@
     });
 });
 
+
 </script>
-  </body>
-  </html>
+
