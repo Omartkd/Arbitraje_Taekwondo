@@ -18,6 +18,7 @@
 
      "scripts": {
     "start": "node server.js",
+    "dev": "NODE_ENV=development node server.js",
     "build": "npm install && cd public && npm install && npm run build"
      },
          
