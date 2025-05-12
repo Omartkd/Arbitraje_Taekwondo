@@ -3,8 +3,15 @@ const app = express();
 const http = require('http');  // Usa http normal
 const server = http.createServer(app);  // Sin configuración SSL
 const { Server } = require("socket.io");
-const io = new Server(server);
-
+const io = new Server(server, {
+  cors: {
+    origin: [
+      "https://arbitraje-taekwondo.onrender.com",
+      "http://localhost:3000"  // Para desarrollo local
+    ],
+    methods: ["GET", "POST"]
+  }
+});
 app.use(express.static('public'));
 
 // Variables de estado del juego
