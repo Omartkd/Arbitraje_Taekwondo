@@ -1,17 +1,31 @@
 const express = require('express');
 const app = express();
-const http = require('http');  // Usa http normal
-const server = http.createServer(app);  // Sin configuración SSL
+const http = require('http');
+const server = http.createServer(app);
 const { Server } = require("socket.io");
+const path = require('path'); // Importa el módulo path
+
+// Configuración mejorada de Socket.IO para producción
 const io = new Server(server, {
   cors: {
     origin: [
       "https://arbitraje-taekwondo.onrender.com",
-      "http://localhost:3000"  // Para desarrollo local
+      "http://localhost:3000"
     ],
-    methods: ["GET", "POST"]
-  }
+    methods: ["GET", "POST"],
+    credentials: true
+  },
+  transports: ['websocket', 'polling']
 });
+
+// Configuración de archivos estáticos con path absoluto
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Ruta principal para servir el frontend
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 app.use(express.static('public'));
 
 // Variables de estado del juego
@@ -241,9 +255,9 @@ function checkScoreDifference() {
     }
   }
 
-// Verificar que el servidor esté escuchando en el puerto 3000
 const PORT = process.env.PORT || 3000;
 
 server.listen(PORT, () => {
     console.log(`Servidor escuchando en puerto ${PORT}`);
+    console.log('Modo:', process.env.NODE_ENV || 'development');
 });
