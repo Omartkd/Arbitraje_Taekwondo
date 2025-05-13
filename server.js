@@ -3,30 +3,34 @@ const app = express();
 const http = require('http');
 const server = http.createServer(app);
 const { Server } = require("socket.io");
-const path = require('path'); // Importa el módulo path
+const cors = require('cors');
 
-// Configuración mejorada de Socket.IO para producción
+// Configuración para producción
+const isProduction = process.env.NODE_ENV === 'production';
+const PORT = process.env.PORT || 3000;
+const CLIENT_URL = isProduction 
+  ? 'https://arbitraje-taekwondo.onrender.com' 
+  : 'http://localhost:3000';
+
+// Configuración de CORS
+app.use(cors({
+  origin: CLIENT_URL,
+  methods: ["GET", "POST"]
+}));
+
+// Servir archivos estáticos
+app.use(express.static('public'));
+
+// Configuración mejorada de Socket.IO
 const io = new Server(server, {
   cors: {
-    origin: [
-      "https://arbitraje-taekwondo.onrender.com",
-      "http://localhost:3000"
-    ],
+    origin: CLIENT_URL,
     methods: ["GET", "POST"],
     credentials: true
   },
-  transports: ['websocket', 'polling']
+  transports: ['websocket', 'polling'],
+  allowEIO3: true
 });
-
-// Configuración de archivos estáticos con path absoluto
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Ruta principal para servir el frontend
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-app.use(express.static('public'));
 
 // Variables de estado del juego
 let gameState = {
@@ -48,16 +52,52 @@ let anotacionesTemporales = {
 
 let timeoutId = null;
 
-io.on('connection', (socket) => {
-  console.log('Un cliente se ha conectado:', socket.id);
+// Función para verificar diferencia de puntuación
+function checkScoreDifference() {
+  if (!gameState.gameActive) return;
 
-  // Enviar estado inicial al cliente
+  const blueScore = gameState.blueScore;
+  const redScore = gameState.redScore;
+  const difference = Math.abs(blueScore - redScore);
+  
+  if (difference >= 12) {
+    gameState.gameActive = false;
+    const winner = blueScore > redScore ? 'azul' : 'rojo';
+    
+    const victoryData = {
+      winner: winner,
+      blueScore: blueScore,
+      redScore: redScore,
+      difference: difference,
+      timestamp: Date.now()
+    };
+    
+    try {
+      io.emit('victoriaPorDiferencia', victoryData);
+      console.log(`¡El equipo ${winner} gana por diferencia de ${difference} puntos!`);
+    } catch (error) {
+      console.error("Error al emitir victoria:", error);
+      gameState.gameActive = true;
+    }
+  }
+}
+
+// Conexiones Socket.IO
+io.on('connection', (socket) => {
+  console.log('Cliente conectado:', socket.id);
+
+  // Enviar estado inicial
   socket.emit('actualizarPuntaje', {
     blueScore: gameState.blueScore,
-    redScore: gameState.redScore,
+    redScore: gameState.redScore
   });
 
-  // Manejadores de eventos de puntuación
+  socket.emit('actualizarKamgeon', {
+    blueKamgeon: kamgeonState.blueScore,
+    redKamgeon: kamgeonState.redScore
+  });
+
+  // Manejador genérico de puntuación
   const handlePuntuacion = (eventName, points) => {
     socket.on(eventName, (data) => {
       if (!gameState.gameActive) return;
@@ -68,35 +108,25 @@ io.on('connection', (socket) => {
       if (now - timestamp <= 5000) {
         anotacionesTemporales[equipo].push({ timestamp, clienteId: socket.id });
 
-        if (timeoutId) {
-          clearTimeout(timeoutId);
-        }
+        if (timeoutId) clearTimeout(timeoutId);
 
         if (anotacionesTemporales[equipo].length >= 2) {
-          const anotaciones = anotacionesTemporales[equipo];
-          const primeraAnotacion = anotaciones[0];
-          const ultimaAnotacion = anotaciones[anotaciones.length - 1];
+          const [first, last] = [
+            anotacionesTemporales[equipo][0],
+            anotacionesTemporales[equipo].slice(-1)[0]
+          ];
 
-          if (primeraAnotacion.clienteId !== ultimaAnotacion.clienteId) {
-            const diferencia = Math.abs(primeraAnotacion.timestamp - ultimaAnotacion.timestamp);
-
-            if (diferencia <= 5000) {
-              if (equipo === 'azul') {
-                gameState.blueScore += points;
-              } else {
-                gameState.redScore += points;
-              }
-
-              io.emit('actualizarPuntaje', {
-                blueScore: gameState.blueScore,
-                redScore: gameState.redScore
-              });
-
-              anotacionesTemporales[equipo] = [];
-              checkScoreDifference();
-            } else {
-              anotacionesTemporales[equipo].shift();
-            }
+          if (first.clienteId !== last.clienteId && 
+              (last.timestamp - first.timestamp) <= 5000) {
+            gameState[`${equipo}Score`] += points;
+            anotacionesTemporales[equipo] = [];
+            
+            io.emit('actualizarPuntaje', {
+              blueScore: gameState.blueScore,
+              redScore: gameState.redScore
+            });
+            
+            checkScoreDifference();
           } else {
             anotacionesTemporales[equipo].shift();
           }
@@ -109,155 +139,70 @@ io.on('connection', (socket) => {
     });
   };
 
-  // Configurar handlers para cada tipo de puntuación
+  // Registrar handlers de puntuación
   handlePuntuacion('puntuacionCabeza', 3);
   handlePuntuacion('puntuacionPeto', 2);
   handlePuntuacion('puntuacionGiroPeto', 4);
   handlePuntuacion('puntuacionGiroCabeza', 5);
   handlePuntuacion('puntuacionPuño', 1);
 
-    
-    socket.on('puntuacionRestar', (data) => {
-        if (!gameState.gameActive) return;
-    
-        const { equipo } = data;
-        
-        if (equipo === 'azul') {
-          gameState.blueScore = Math.max(gameState.blueScore - 1, 0);
-        } else {
-          gameState.redScore = Math.max(gameState.redScore - 1, 0);
-        }
-    
-        io.emit('actualizarPuntaje', {
-          blueScore: gameState.blueScore,
-          redScore: gameState.redScore
-        });
-    
-        checkScoreDifference();
-      });
+  // Eventos adicionales
+  socket.on('puntuacionRestar', (data) => {
+    if (!gameState.gameActive) return;
+    const { equipo } = data;
+    gameState[`${equipo}Score`] = Math.max(gameState[`${equipo}Score`] - 1, 0);
+    io.emit('actualizarPuntaje', gameState);
+    checkScoreDifference();
+  });
 
-      socket.on('puntuacionSumar', (data) => {
-        if (!gameState.gameActive) return;
-    
-        const { equipo } = data;
-        
-        if (equipo === 'azul') {
-          gameState.blueScore += 1;
-        } else {
-          gameState.redScore += 1;
-        }
-    
-        io.emit('actualizarPuntaje', {
-          blueScore: gameState.blueScore,
-          redScore: gameState.redScore
-        });
-    
-        checkScoreDifference();
-      });
+  socket.on('puntuacionSumar', (data) => {
+    if (!gameState.gameActive) return;
+    const { equipo } = data;
+    gameState[`${equipo}Score`] += 1;
+    io.emit('actualizarPuntaje', gameState);
+    checkScoreDifference();
+  });
 
-      socket.on('puntuacionKamgeon', (data) => {
-        if (!gameState.gameActive) return;
-    
-        const { equipo } = data;
-        
-        // Sumar punto Kamgeon al equipo correspondiente
-        if (equipo === 'azul') {
-            kamgeonState.blueScore += 1;
-        } else {
-            kamgeonState.redScore += 1;
-        }
-    
-        // Enviar actualización solo de los puntos Kamgeon
-        io.emit('actualizarKamgeon', {
-            blueKamgeon: kamgeonState.blueScore,
-            redKamgeon: kamgeonState.redScore
-        });
+  socket.on('puntuacionKamgeon', (data) => {
+    if (!gameState.gameActive) return;
+    const { equipo } = data;
+    kamgeonState[`${equipo}Score`] += 1;
+    io.emit('actualizarKamgeon', kamgeonState);
+  });
 
-      });
-
-      socket.on('resetGame', () => {
-        gameState.blueScore = 0;
-        gameState.redScore = 0;
-        kamgeonState.blueScore = 0;
-        kamgeonState.redScore = 0;
-        gameState.gameActive = true;
-        
-        anotacionesTemporales = {
-          azul: [],
-          rojo: []
-        };
-        
-        if (timeoutId) {
-          clearTimeout(timeoutId);
-          timeoutId = null;
-        }
-        
-        io.emit('actualizarPuntaje', {
-          blueScore: gameState.blueScore,
-          redScore: gameState.redScore
-        });
-
-        io.emit('actualizarKamgeon', {
-          blueKamgeon: 0,
-          redKamgeon: 0
-      });
-        
-        io.emit('gameReset');
-        
-        console.log('Juego reiniciado');
-      });
+  socket.on('resetGame', () => {
+    gameState = {
+      blueScore: 0,
+      redScore: 0,
+      gameActive: true
+    };
+    kamgeonState = {
+      blueScore: 0,
+      redScore: 0
+    };
+    anotacionesTemporales = { azul: [], rojo: [] };
+    clearTimeout(timeoutId);
+    timeoutId = null;
     
+    io.emit('actualizarPuntaje', gameState);
+    io.emit('actualizarKamgeon', kamgeonState);
+    io.emit('gameReset');
     
-    socket.on('disconnect', () => {
-        console.log('Un cliente se ha desconectado');
-    });
+    console.log('Juego reiniciado');
+  });
+
+  socket.on('disconnect', () => {
+    console.log('Cliente desconectado:', socket.id);
+  });
 });
 
-function checkScoreDifference() {
-    // Verificar que el juego esté activo antes de hacer cualquier comprobación
-    if (!gameState.gameActive) return;
-  
-    const blueScore = gameState.blueScore;
-    const redScore = gameState.redScore;
-    const difference = Math.abs(blueScore - redScore);
-    
-    // Solo declarar ganador si la diferencia es exactamente 12 o más
-    if (difference >= 12) {
-      // Desactivar el juego primero para evitar condiciones de carrera
-      gameState.gameActive = false;
-      
-      // Determinar el ganador
-      const winner = blueScore > redScore ? 'azul' : 'rojo';
-      
-      // Crear objeto de datos para el evento
-      const victoryData = {
-        winner: winner,
-        blueScore: blueScore,
-        redScore: redScore,
-        difference: difference,
-        timestamp: Date.now()
-      };
-      
-      try {
-        // Emitir el evento de victoria a todos los clientes
-        io.emit('victoriaPorDiferencia', victoryData);
-        
-        console.log(`¡El equipo ${winner} gana por diferencia de ${difference} puntos!`);
-        console.log('Puntuación final:', `Azul: ${blueScore} - Rojo: ${redScore}`);
-        
-        // Opcional: Reiniciar el juego después de un tiempo
-        // setTimeout(() => resetGame(), 10000);
-      } catch (error) {
-        console.error('Error al emitir evento de victoria:', error);
-        // Reactivar el juego si hubo un error
-        gameState.gameActive = true;
-      }
-    }
-  }
+// Ruta principal
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/public/index.html');
+});
 
-const PORT = process.env.PORT || 3000;
-
+// Iniciar servidor
 server.listen(PORT, () => {
-    console.log(`Servidor escuchando en puerto ${PORT}`);
-    console.log('Modo:', process.env.NODE_ENV || 'development');
+  console.log(`Servidor escuchando en ${isProduction ? CLIENT_URL : `http://localhost:${PORT}`}`);
+  console.log(`Socket.IO configurado para: ${CLIENT_URL}`);
 });
