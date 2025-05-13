@@ -18,18 +18,28 @@ app.use(cors({
   methods: ["GET", "POST"]
 }));
 
-// Servir archivos estáticos
-app.use(express.static('public'));
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', CLIENT_URL);
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  next();
+});
 
 // Configuración mejorada de Socket.IO
 const io = new Server(server, {
   cors: {
-    origin: CLIENT_URL,
-    methods: ["GET", "POST"],
+    origin: [
+      "https://arbitraje-taekwondo.onrender.com",
+      "http://localhost:3000"
+    ],
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true
   },
   transports: ['websocket', 'polling'],
-  allowEIO3: true
+  allowEIO3: true,
+  path: "/socket.io/" // Asegura la ruta del socket
 });
 
 // Variables de estado del juego
