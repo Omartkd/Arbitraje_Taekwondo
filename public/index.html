@@ -1,640 +1,144 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Boleta de Arbitraje</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      align-items: center;
-      background: black;
-      color: white;
-    }
-    #timer {
-      font-size: 8em;
-      margin-bottom: 1px;
-      position:  0; 
-    }
-
-
-    .button-container {
-      display: flex;
-      padding: 20px;
-      gap: 100px;
-    }
-
-    .button-container {
-      display: flex;
-      padding: 20px;
-      gap: 100px;
-    }
-
-    button {
-      padding: 10px 10px;
-      font-size: 1em;
-      margin: 20;
-    }
-
-    button {
-      padding: 10px 10px;
-      font-size: 1em;
-      margin: 20;
-    }
-  </style>
-</head>
-
-
-
-
-<title>Contador de Puntaje</title>
-  <style>
-    body {
-        font-family: sans-serif;
-        flex-direction: column;
-        height: 100vh;
-        margin: 20px; /* Corrige el valor para que se aplique correctamente */
-    }
-
-    .container {
-        display: flex;
-        align-items: center;
-        gap: 100px;
-    }
-
-    .timers-container {
-    display: flex;
-    flex-direction: column; /* Apila los elementos verticalmente */
-    align-items: center;    /* Centra horizontalmente */
-    gap: 20px;             /* Espacio entre los timers */
-}
-
-    .kamgeon-score {
-    display: flex;
-    flex-direction: column; /* Apila los elementos verticalmente */
-    align-items: center;    /* Centra horizontalmente */
-    gap: 20px;             /* Espacio entre los timers */
-}
-
-    #kamgeon-blue-score {
-        font-size: 10em;
-        padding: 10px;
-        border: 6px solid #ccc;
-        border-radius: 10px;
-        text-align: center;
-        background-color: orange;
-        color: black;
-        width: 70px;
-    }
-
-    .bluescore {
-        font-size: 30em;
-        padding: 10px;
-        border: 6px solid #ccc;
-        border-radius: 10px;
-        text-align: center;
-        background-color: blue;
-        color: white;
-        width: 700px;
-    }
-
-    #timer1 {
-        font-size: 7em;
-        padding: 10px;
-        border: 6px solid #ccc;
-        border-radius: 10px;
-        text-align: center;
-        background-color: orange;
-        color: black;
-        width: 300px;
-    }
-
-    #timer2 {
-        font-size: 7em;
-        padding: 10px;
-        border: 6px solid #ccc;
-        border-radius: 10px;
-        text-align: center;
-        background-color: orange;
-        color: black;
-        width: 300px;
-    }
-
-    .round-display {
-        font-size: 7em;
-        padding: 10px;
-        border: 6px solid #ccc;
-        border-radius: 10px;
-        text-align: center;
-        background-color: orange;
-        color: black;
-        width: 400px;
-    }
-
-    .redscore {
-        background-color: red;
-        font-size: 30em;
-        padding: 10px;
-        border: 6px solid #ccc;
-        border-radius: 10px;
-        text-align: center;
-        color: white;
-        width: 700px;
-    }
-
-    #kamgeon-red-score {
-        background-color: orange;
-        font-size: 10em;
-        padding: 10px;
-        border: 6px solid #ccc;
-        border-radius: 10px;
-        text-align: center;
-        color: black;
-        width: 70px;
-    }
-
-    .button-container {
-        margin-top: px; /* Aumenta el margen superior para separar más */
-        display: flex;
-        align-items: center;
-        gap: 100px; /* Espacio entre botones */
-    }
-
-    button {
-        padding: 10px 50px; /* Ajuste del padding para mejor apariencia */
-        font-size: 1.5em; /* Tamaño de fuente más razonable */
-        cursor: pointer;
-        border: none;
-        border-radius: 30px;
-        color: black; /* Color del texto en los botones */
-    }
-
-    .blue-button {
-        background-color: #87CEEB; /* Color azul */
-    }
-
-    .red-button {
-        background-color: #FF6347; /* Color rojo */
-    }
-
-    .points-container {
-        margin-top: 60px;
-        text-align: center;
-    }
-  </style>
-</head>
-<body>
-
-  <div class="button-container">
-    <button id="start1">Iniciar</button>
-    <button id="pause1">Pausar</button>
-    <button id="resume1">Continuar</button>
-    <button id="reset1">Reiniciar</button>
-  </div>
-
-  <div class="button-container">
-    <button id="start2">Medico</button>
-    <button id="pause2">Pausar</button>
-    <button id="resume2">Continuar</button>
-    <button id="reset2">Reiniciar</button>
-  </div>
-
-  
-  <div class="container">
-    <div class="kamgeon-blue-score"id="kamgeon-blue-score">0</div>
-    <div class="bluescore" id="blueScore">0</div>
-    <div class="timers-container">
-    <div class="timer" id="timer1">00:00</div>
-    <div class="timer" id="timer2">00:00</div>
-    <div class="round-display" id="roundDisplay">round1</div>
-  </div>
-    <div class="redscore" id="redScore">0</div>
-    <div class="kamgeon-red-score"id="kamgeon-red-score">0</div>
-    </div>
-    <div id="kamgeon-message"></div>
-
-<div class="button-container">
-  <button class="blue-button" id="blueHeadKickButton">+3</button>
-  <button class="red-button" id="redHeadKickButton">+3</button>
-</div>
-
-<div class="button-container">
-  <button class="blue-button" id="blueBodyKickButton">+2</button>
-  <button class="red-button" id="redBodyKickButton">+2</button>
-</div>
-
-<div class="button-container">
-  <button class="blue-button" id="blueSpinningBodyKickButton">+4</button>
-  <button class="red-button" id="redSpinningBodyKickButton">+4</button>
-</div>
-
-<div class="button-container">
-  <button class="blue-button" id="blueSpinningHeadKickButton">+5</button>
-  <button class="red-button" id="redSpinningHeadKickButton">+5</button>
-</div>
-
-<div class="button-container">
-  <button class="blue-button" id="bluePunchButton">+1</button>
-  <button class="red-button" id="redPunchButton">+1</button>
-</div>
-
-<div class="button-container">
-  <button class="blue-button" id="blueSubtractButton">Restar</button>
-  <button class="red-button" id="redSubtractButton">Restar</button>
-</div>
-
-<div class="button-container">
-  <button class="blue-button" id="blueAddButton">Sumar</button>
-  <button class="red-button" id="redAddButton">Sumar</button>
-</div>
-
-<div class="button-container">
-  <button class="blue-button" id="blueKamgeonButton">Kamgeon</button>
-  <button class="red-button" id="redKamgeonButton">Kamgeon</button>
-</div>
-
-<script>
-  // Variables globales para control de rounds
-  let currentRound = 1;
-  const maxRounds = 3;
-  const roundDisplay = document.getElementById('roundDisplay'); // Asegúrate de tener este elemento en tu HTML
-  
-  // Variables para timer1
-  let timer1Interval;
-  let timer1StartTime = 0;
-  let timer1ElapsedTime = 0;
-  let timer1IsRunning = false;
-  let timer1IsRecovery = false;
-  let timer1IsMedical = false;
-  let timer1RemainingTime = 90; // 1.5 minutos (90 segundos)
-  
-  // Elementos del DOM para timer1
-  const timer1Display = document.getElementById('timer1');
-  const startButton1 = document.getElementById('start1');
-  const pauseButton1 = document.getElementById('pause1');
-  const resumeButton1 = document.getElementById('resume1');
-  const resetButton1 = document.getElementById('reset1');
-
-  // Función para actualizar el display del round
-  function updateRoundDisplay() {
-    if (roundDisplay) {
-      roundDisplay.textContent = `Round ${currentRound}`;
-    }
-  }
-
-  // Función para formatear el tiempo (MM:SS)
-  function formatTime(seconds) {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = Math.floor(seconds % 60);
-    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
-  }
-
-  // Función principal de actualización del timer1
-  function updateTimer1() {
-    timer1ElapsedTime = (Date.now() - timer1StartTime) / 1000; // en segundos
-    
-    let displayTime;
-    if (timer1IsRecovery || timer1IsMedical) {
-      // Modo cuenta regresiva (recuperación o tiempo médico)
-      displayTime = timer1RemainingTime - timer1ElapsedTime;
-      if (displayTime <= 0) {
-        displayTime = 0;
-        if (timer1IsRecovery) {
-          // Terminó el tiempo de recuperación, avanzar al siguiente round
-          if (currentRound < maxRounds) {
-            currentRound++;
-            updateRoundDisplay();
-            timer1IsRecovery = false;
-            timer1RemainingTime = 90; // 1.5 minutos para el próximo round
-            timer1StartTime = Date.now();
-            timer1ElapsedTime = 0;
-            playSilbato1();
-            return;
-          } else {
-            // Último round completado
-            resetTimer1();
-            playSilbato1();
-            return;
-          }
-        } else {
-          resetTimer1();
-        }
-        playSilbato1();
-        return;
-      }
-    } else {
-      // Modo cuenta progresiva (tiempo normal)
-      displayTime = timer1ElapsedTime;
-      if (displayTime >= timer1RemainingTime) {
-        // Cambiar a modo recuperación
-        timer1IsRecovery = true;
-        timer1StartTime = Date.now();
-        timer1ElapsedTime = 0;
-        timer1RemainingTime = 60; // 1 minuto para recuperación
-        playSilbato1();
-        return;
-      }
-    }
-    
-    timer1Display.textContent = formatTime(displayTime);
-  }
-
-  // Controladores del timer1 (sin cambios)
-  function startTimer1() {
-    if (!timer1IsRunning) {
-      timer1StartTime = Date.now() - timer1ElapsedTime * 1000;
-      timer1Interval = setInterval(updateTimer1, 100);
-      timer1IsRunning = true;
-      updateButtonStates();
-    }
-  }
-
-  function pauseTimer1() {
-    clearInterval(timer1Interval);
-    timer1IsRunning = false;
-    updateButtonStates();
-  }
-
-  function resumeTimer1() {
-    if (!timer1IsRunning) {
-      timer1StartTime = Date.now() - timer1ElapsedTime * 1000;
-      timer1Interval = setInterval(updateTimer1, 100);
-      timer1IsRunning = true;
-      updateButtonStates();
-    }
-  }
-
-  function resetTimer1() {
-    clearInterval(timer1Interval);
-    timer1StartTime = 0;
-    timer1ElapsedTime = 0;
-    timer1IsRunning = false;
-    timer1IsRecovery = false;
-    timer1IsMedical = false;
-    timer1RemainingTime = 90;
-    currentRound = 1;
-    updateRoundDisplay();
-    timer1Display.textContent = '00:00';
-    updateButtonStates();
-  }
-
-  // Actualizar estados de los botones
-  function updateButtonStates() {
-    startButton1.disabled = timer1IsRunning;
-    pauseButton1.disabled = timer1IsRunning;
-    resumeButton1.disabled = timer1IsRunning;
-  }
-
-  // Función para reproducir sonido
-  function playSilbato1() {
-    try {
-      const audio = new Audio('audio/silbato.mp3');
-      audio.play().catch(e => console.error("Error al reproducir audio:", e));
-    } catch (e) {
-      console.error("Error al cargar audio:", e);
-    }
-  }
-
-  // Event listeners
-  startButton1.addEventListener('click', startTimer1);
-  pauseButton1.addEventListener('click', pauseTimer1);
-  resumeButton1.addEventListener('click', resumeTimer1);
-  resetButton1.addEventListener('click', resetTimer1);
-
-  // Inicialización
-  updateButtonStates();
-  updateRoundDisplay();
-</script>
-
-<script>
-  // Variables para timer1
-  let timer2Interval;
-  let timer2StartTime = 0;
-  let timer2ElapsedTime = 0;
-  let timer2IsRunning = false;
-  let timer2IsRecovery = false;
-  let timer2IsMedical = false;
-  let timer2RemainingTime = 90; // 1.5 minutos (90 segundos)
-  
-  // Elementos del DOM para timer1
-  const timer2Display = document.getElementById('timer2');
-  const startButton2 = document.getElementById('start2');
-  const pauseButton2 = document.getElementById('pause2');
-  const resumeButton2 = document.getElementById('resume2');
-  const resetButton2 = document.getElementById('reset2');
-
-  // Función para formatear el tiempo (MM:SS)
-  function formatTime(seconds) {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = Math.floor(seconds % 60);
-    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
-  }
-
-  // Función principal de actualización del timer1
-  function updateTimer2() {
-    timer2ElapsedTime = (Date.now() - timer2StartTime) / 1000; // en segundos
-    
-    let displayTime;
-    if (timer2IsRecovery || timer2IsMedical) {
-      // Modo cuenta regresiva (recuperación o tiempo médico)
-      displayTime = timer2RemainingTime - timer2ElapsedTime;
-      if (displayTime <= 0) {
-        displayTime = 0;
-        resetTimer2();
-        playSilbato2();
-        return;
-      }
-    } else {
-      // Modo cuenta progresiva (tiempo normal)
-      displayTime = timer2ElapsedTime;
-      if (displayTime >= timer2RemainingTime) {
-        // Cambiar a modo recuperación
-        timer2IsRecovery = true;
-        timer2StartTime = Date.now();
-        timer2ElapsedTime = 0;
-        timer2RemainingTime = 60; // 1 minuto para recuperación
-        playSilbato2();
-        return;
-      }
-    }
-    
-    timer2Display.textContent = formatTime(displayTime);
-  }
-
-  // Controladores del timer1
-  function startTimer2() {
-    if (!timer2IsRunning) {
-      timer2StartTime = Date.now() - timer2ElapsedTime * 1000;
-      timer2Interval = setInterval(updateTimer2, 100); // Actualizar cada 100ms
-      timer2IsRunning = true;
-      updateButtonStates();
-    }
-  }
-
-  function pauseTimer2() {
-    clearInterval(timer2Interval);
-    timer2IsRunning = false;
-    updateButtonStates();
-  }
-
-  function resumeTimer2() {
-    if (!timer2IsRunning) {
-      timer2StartTime = Date.now() - timer2ElapsedTime * 1000;
-      timer2Interval = setInterval(updateTimer2, 100);
-      timer2IsRunning = true;
-      updateButtonStates();
-    }
-  }
-
-  function resetTimer2() {
-    clearInterval(timer2Interval);
-    timer2StartTime = 0;
-    timer2ElapsedTime = 0;
-    timer2IsRunning = false;
-    timer2IsRecovery = false;
-    timer2IsMedical = false;
-    timer2RemainingTime = 90;
-    timer2Display.textContent = '00:00';
-    updateButtonStates();
-  }
-
-  // Actualizar estados de los botones
-  function updateButtonStates() {
-    startButton2.disabled = timer2IsRunning;
-    pauseButton2.disabled = !timer2IsRunning;
-    resumeButton2.disabled = timer2IsRunning;
-  }
-
-  // Función para reproducir sonido
-  function playSilbato2() {
-    try {
-      const audio = new Audio('audio/silbato.mp3');
-      audio.play().catch(e => console.error("Error al reproducir audio:", e));
-    } catch (e) {
-      console.error("Error al cargar audio:", e);
-    }
-  }
-
-  // Event listeners
-  startButton2.addEventListener('click', startTimer2);
-  pauseButton2.addEventListener('click', pauseTimer2);
-  resumeButton2.addEventListener('click', resumeTimer2);
-  resetButton2.addEventListener('click', resetTimer2);
-
-  // Inicialización
-  updateButtonStates();
-</script>
-
-<title>Boleta de Arbitraje</title>
 <script src="/socket.io/socket.io.js"></script>
 <script>
-  const socket = io();
-  const blueHeadKickButton = document.getElementById('blueHeadKickButton');
-  const redHeadKickButton = document.getElementById('redHeadKickButton');
-  const blueBodykickButton = document.getElementById('bluebodykickButton');
-  const redBodykickButton = document.getElementById('redbodykickButton');
-  const blueSpinningBobykickButton = document.getElementById('blueSpinningBodykickButton');
-  const redSpinningBodykickButton = document.getElementById('redSpinningBodykickButton');
-  const blueSpinningHeadkickButton = document.getElementById('blueSpinningHeadkickButton');
-  const redSpinningHeadkickButton = document.getElementById('redSpinningHeadkickButton');
-  const bluePunchButton = document.getElementById('bluePunchButton');
-  const redPunchButton = document.getElementById('redPunchButton');
-  const blueSubtractButton = document.getElementById('blueSubtractButton');
-  const redSubtractButton = document.getElementById('redSubtractButton');
-  const blueAddButton = document.getElementById('blueAddButton');
-  const redAddButton = document.getElementById('redAddButton'); 
-  const blueKamgeonButton = document.getElementById('blueKamgeonButton');
-  const redKamgeonButton = document.getElementById('redKamgeonButton'); 
-  
-  
-  blueHeadKickButton.addEventListener('click', () => {
-    socket.emit('puntuacionCabeza', { equipo: 'azul', timestamp: Date.now() });
+  // Configuración de conexión Socket.IO para producción
+  const socket = io({
+    transports: ['websocket'],
+    upgrade: false,
+    reconnection: true,
+    reconnectionAttempts: 5,
+    reconnectionDelay: 1000,
+    timeout: 20000,
+    query: {
+      clientType: 'scoreboard'
+    }
   });
 
-  redHeadKickButton.addEventListener('click', () => {
-    socket.emit('puntuacionCabeza', { equipo: 'rojo', timestamp: Date.now() });
+  // Manejo de eventos de conexión
+  socket.on('connect', () => {
+    console.log('Conectado al servidor de arbitraje');
+    document.querySelectorAll('.puntuacion-btn').forEach(btn => {
+      btn.disabled = false;
+    });
   });
 
-  blueBodyKickButton.addEventListener('click', () => {
-    socket.emit('puntuacionPeto', { equipo: 'azul', timestamp: Date.now() });
+  socket.on('disconnect', (reason) => {
+    console.log('Desconectado del servidor:', reason);
+    if (reason === 'io server disconnect') {
+      socket.connect();
+    }
   });
 
-  redBodyKickButton.addEventListener('click', () => {
-    socket.emit('puntuacionPeto', { equipo: 'rojo', timestamp: Date.now() });
+  socket.on('connect_error', (error) => {
+    console.error('Error de conexión:', error.message);
+    setTimeout(() => socket.connect(), 5000);
   });
 
-  blueSpinningBodyKickButton.addEventListener('click', () => {
-    socket.emit('puntuacionGiroPeto', { equipo: 'azul', timestamp: Date.now() });
-  });
+  // Mapeo de botones corregido (IDs exactos)
+  const buttons = {
+    blueHeadKick: document.getElementById('blueHeadKickButton'),
+    redHeadKick: document.getElementById('redHeadKickButton'),
+    blueBodyKick: document.getElementById('blueBodyKickButton'), // Corregido de bluebodykickButton
+    redBodyKick: document.getElementById('redBodyKickButton'),   // Corregido de redbodykickButton
+    blueSpinningBodyKick: document.getElementById('blueSpinningBodyKickButton'), // Corregido
+    redSpinningBodyKick: document.getElementById('redSpinningBodyKickButton'),   // Corregido
+    blueSpinningHeadKick: document.getElementById('blueSpinningHeadKickButton'),
+    redSpinningHeadKick: document.getElementById('redSpinningHeadKickButton'),
+    bluePunch: document.getElementById('bluePunchButton'),
+    redPunch: document.getElementById('redPunchButton'),
+    blueSubtract: document.getElementById('blueSubtractButton'),
+    redSubtract: document.getElementById('redSubtractButton'),
+    blueAdd: document.getElementById('blueAddButton'),
+    redAdd: document.getElementById('redAddButton'),
+    blueKamgeon: document.getElementById('blueKamgeonButton'),
+    redKamgeon: document.getElementById('redKamgeonButton')
+  };
 
-  redSpinningBodyKickButton.addEventListener('click', () => {
-    socket.emit('puntuacionGiroPeto', { equipo: 'rojo', timestamp: Date.now() });
-  });
+  // Asignación de eventos mejorada
+  const setupButton = (button, eventName, team) => {
+    if (!button) {
+      console.error(`Botón no encontrado para ${eventName} (${team})`);
+      return;
+    }
+    button.addEventListener('click', () => {
+      socket.emit(eventName, { 
+        equipo: team, 
+        timestamp: Date.now() 
+      });
+    });
+    button.classList.add('puntuacion-btn');
+  };
 
-  blueSpinningHeadKickButton.addEventListener('click', () => {
-    socket.emit('puntuacionGiroCabeza', { equipo: 'azul', timestamp: Date.now() });
-  });
+  // Configuración de todos los botones
+  setupButton(buttons.blueHeadKick, 'puntuacionCabeza', 'azul');
+  setupButton(buttons.redHeadKick, 'puntuacionCabeza', 'rojo');
+  setupButton(buttons.blueBodyKick, 'puntuacionPeto', 'azul');
+  setupButton(buttons.redBodyKick, 'puntuacionPeto', 'rojo');
+  setupButton(buttons.blueSpinningBodyKick, 'puntuacionGiroPeto', 'azul');
+  setupButton(buttons.redSpinningBodyKick, 'puntuacionGiroPeto', 'rojo');
+  setupButton(buttons.blueSpinningHeadKick, 'puntuacionGiroCabeza', 'azul');
+  setupButton(buttons.redSpinningHeadKick, 'puntuacionGiroCabeza', 'rojo');
+  setupButton(buttons.bluePunch, 'puntuacionPuño', 'azul');
+  setupButton(buttons.redPunch, 'puntuacionPuño', 'rojo');
+  setupButton(buttons.blueSubtract, 'puntuacionRestar', 'azul');
+  setupButton(buttons.redSubtract, 'puntuacionRestar', 'rojo');
+  setupButton(buttons.blueAdd, 'puntuacionSumar', 'azul');
+  setupButton(buttons.redAdd, 'puntuacionSumar', 'rojo');
+  setupButton(buttons.blueKamgeon, 'puntuacionKamgeon', 'azul');
+  setupButton(buttons.redKamgeon, 'puntuacionKamgeon', 'rojo');
 
-  redSpinningHeadKickButton.addEventListener('click', () => {
-    socket.emit('puntuacionGiroCabeza', { equipo: 'rojo', timestamp: Date.now() });
-  });
-
-  bluePunchButton.addEventListener('click', () => {
-    socket.emit('puntuacionPuño', { equipo: 'azul', timestamp: Date.now() });
-  });
-
-  redPunchButton.addEventListener('click', () => {
-    socket.emit('puntuacionPuño', { equipo: 'rojo', timestamp: Date.now() });
-  });
-
-  blueSubtractButton.addEventListener('click', () => {
-    socket.emit('puntuacionRestar', { equipo: 'azul', timestamp: Date.now() });
-  });
-
-  redSubtractButton.addEventListener('click', () => {
-    socket.emit('puntuacionRestar', { equipo: 'rojo', timestamp: Date.now() });
-
-  });
-
-  blueAddButton.addEventListener('click', () => {
-    socket.emit('puntuacionSumar', { equipo: 'azul', timestamp: Date.now() });
-  });
-
-  redAddButton.addEventListener('click', () => {
-    socket.emit('puntuacionSumar', { equipo: 'rojo', timestamp: Date.now() });
-
-  });
-
-  blueKamgeonButton.addEventListener('click', () => {
-    socket.emit('puntuacionKamgeon', { equipo: 'azul', timestamp: Date.now() });
-  });
-
-  redKamgeonButton.addEventListener('click', () => {
-    socket.emit('puntuacionKamgeon', { equipo: 'rojo', timestamp: Date.now() });
-
-  });
-
-
+  // Manejo de actualizaciones del servidor
   socket.on('actualizarPuntaje', (data) => {
-    // Actualiza la interfaz de usuario con los nuevos puntajes
-    document.getElementById('blueScore').textContent = data.blueScore;
-    document.getElementById('redScore').textContent = data.redScore;
+    if (data && data.blueScore !== undefined && data.redScore !== undefined) {
+      document.getElementById('blueScore').textContent = data.blueScore;
+      document.getElementById('redScore').textContent = data.redScore;
+    } else {
+      console.error('Datos de puntuación inválidos:', data);
+    }
   });
 
   socket.on('actualizarKamgeon', (data) => {
-    document.getElementById('kamgeon-blue-score').textContent = data.blueKamgeon;
-    document.getElementById('kamgeon-red-score').textContent = data.redKamgeon;
-
+    if (data && data.blueKamgeon !== undefined && data.redKamgeon !== undefined) {
+      document.getElementById('kamgeon-blue-score').textContent = data.blueKamgeon;
+      document.getElementById('kamgeon-red-score').textContent = data.redKamgeon;
+    }
   });
 
   socket.on('victoriaPorDiferencia', (data) => {
-    const winnerName = data.winner === 'azul' ? 'AZUL' : 'ROJO';
-    alert(`¡EQUIPO ${winnerName} GANA POR DIFERENCIA DE 12 PUNTOS!\n\nPuntuación final:\nAzul: ${data.blueScore}\nRojo: ${data.redScore}`);
+    if (!data) return;
     
-    // Opcional: Deshabilitar botones de puntuación
+    const winnerName = data.winner === 'azul' ? 'AZUL' : 'ROJO';
+    const message = `¡EQUIPO ${winnerName} GANA POR DIFERENCIA DE 12 PUNTOS!\n\nPuntuación final:\nAzul: ${data.blueScore}\nRojo: ${data.redScore}`;
+    
+    // Modal mejorado en lugar de alert
+    const modal = document.createElement('div');
+    modal.style = `
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8); display: flex; justify-content: center;
+      align-items: center; z-index: 1000; color: white; font-size: 2em;
+      flex-direction: column; text-align: center;
+    `;
+    modal.innerHTML = `
+      <div style="background: #333; padding: 2em; border-radius: 10px;">
+        <h2>${winnerName} GANA!</h2>
+        <p>Diferencia: ${data.difference} puntos</p>
+        <p>Azul: ${data.blueScore} - Rojo: ${data.redScore}</p>
+        <button onclick="this.parentNode.parentNode.remove()" 
+          style="padding: 10px 20px; margin-top: 20px; font-size: 1rem;">
+          Cerrar
+        </button>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    
+    // Deshabilitar botones
     document.querySelectorAll('.puntuacion-btn').forEach(btn => {
-        btn.disabled = true;
+      btn.disabled = true;
     });
-});
+  });
 
-
+  socket.on('gameReset', () => {
+    document.querySelectorAll('.puntuacion-btn').forEach(btn => {
+      btn.disabled = false;
+    });
+  });
 </script>
-
