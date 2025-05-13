@@ -519,23 +519,30 @@
   resumeButton2.addEventListener('click', resumeTimer2);
   resetButton2.addEventListener('click', resetTimer2);
 
+  // Inicialización
+  updateButtonStates();
+</script>
 
+<title>Boleta de Arbitraje</title>
 <script src="/socket.io/socket.io.js"></script>
 <script>
   // Configuración de conexión Socket.IO para producción
-  const socket = io("https://arbitraje-taekwondo.onrender.com", {
-  path: "/socket.io/",
-  transports: ['websocket'],
-  upgrade: false,
-  secure: true,
-  rejectUnauthorized: false
-});
+ const socket = io("https://arbitraje-taekwondo.onrender.com", {
+    path: "/socket.io/",
+    transports: ['websocket'],
+    upgrade: false,
+    reconnection: true,
+    reconnectionAttempts: 5,
+    reconnectionDelay: 1000,
+    timeout: 20000,
+    secure: true,
+    rejectUnauthorized: false,
+    query: {
+      clientType: 'scoreboard'
+    }
+  });
 
-socket.onAny((event, ...args) => {
-  console.log("Evento recibido:", event, args);
-});  
-
-// Manejo de eventos de conexión
+  // Manejo de eventos de conexión
   socket.on('connect', () => {
     console.log('Conectado al servidor de arbitraje');
     document.querySelectorAll('.puntuacion-btn').forEach(btn => {
@@ -626,22 +633,14 @@ socket.onAny((event, ...args) => {
   });
 
   socket.on('victoriaPorDiferencia', (data) => {
-    const winnerName = data.winner === 'azul' ? 'AZUL' : 'ROJO';
-    alert(`¡EQUIPO ${winnerName} GANA POR DIFERENCIA DE 12 PUNTOS!\n\nPuntuación final:\nAzul: ${data.blueScore}\nRojo: ${data.redScore}`);
-    
-    // Opcional: Deshabilitar botones de puntuación
-    document.querySelectorAll('.puntuacion-btn').forEach(btn => {
-        btn.disabled = true;
-    });
-
+  const winnerName = data.winner === 'azul' ? 'AZUL' : 'ROJO';
+  alert(`¡EQUIPO ${winnerName} GANA POR DIFERENCIA DE 12 PUNTOS!\n\nPuntuación final:\nAzul: ${data.blueScore}\nRojo: ${data.redScore}`);
+  
+  // Opcional: Deshabilitar botones de puntuación
+  document.querySelectorAll('.puntuacion-btn').forEach(btn => {
+    btn.disabled = true;
   });
-    
-  socket.on('gameReset', () => {
-    document.querySelectorAll('.puntuacion-btn').forEach(btn => {
-      btn.disabled = false;
-    });
-  });
+});
 </script>
-
-</body>
-</html>
+  </body>
+  </html>
