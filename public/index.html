@@ -633,6 +633,8 @@
     document.querySelectorAll('.puntuacion-btn').forEach(btn => {
         btn.disabled = true;
     });
+
+  });
     
   socket.on('gameReset', () => {
     document.querySelectorAll('.puntuacion-btn').forEach(btn => {
