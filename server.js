@@ -29,17 +29,10 @@ app.use((req, res, next) => {
 // Configuración mejorada de Socket.IO
 const io = new Server(server, {
   cors: {
-    origin: [
-      "https://arbitraje-taekwondo.onrender.com",
-      "http://localhost:3000"
-    ],
-    methods: ["GET", "POST", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    origin: "https://arbitraje-taekwondo.onrender.com",
+    methods: ["GET", "POST"],
     credentials: true
-  },
-  transports: ['websocket', 'polling'],
-  allowEIO3: true,
-  path: "/socket.io/" // Asegura la ruta del socket
+  }
 });
 
 // Variables de estado del juego
