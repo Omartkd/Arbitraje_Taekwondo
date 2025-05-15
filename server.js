@@ -14,8 +14,8 @@ const CLIENT_URL = isProduction
 
 // Configuración de CORS
 app.use(cors({
-  origin: CLIENT_URL,
-  methods: ["GET", "POST"]
+  origin: isProduction ? 'https://arbitraje-taekwondo.onrender.com' : 'http://localhost:3000',
+  credentials: true
 }));
 
 app.use((req, res, next) => {
@@ -29,9 +29,8 @@ app.use((req, res, next) => {
 // Configuración mejorada de Socket.IO
 const io = new Server(server, {
   cors: {
-    origin: "https://arbitraje-taekwondo.onrender.com",
-    methods: ["GET", "POST"],
-    credentials: true
+    origin: isProduction ? 'https://arbitraje-taekwondo.onrender.com' : 'http://localhost:3000',
+    methods: ["GET", "POST"]
   }
 });
 
