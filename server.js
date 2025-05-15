@@ -4,6 +4,7 @@ const http = require('http');
 const server = http.createServer(app);
 const { Server } = require("socket.io");
 const cors = require('cors');
+const path = require('path');
 
 // Configuración para producción
 const isProduction = process.env.NODE_ENV === 'production';
@@ -12,19 +13,23 @@ const CLIENT_URL = isProduction
   ? 'https://arbitraje-taekwondo.onrender.com' 
   : 'http://localhost:3000';
 
-// Configuración de CORS
-app.use(cors({
-  origin: isProduction ? 'https://arbitraje-taekwondo.onrender.com' : 'http://localhost:3000',
+// Configuración simplificada de CORS
+const corsOptions = {
+  origin: CLIENT_URL,
+  methods: ["GET", "POST"],
   credentials: true
-}));
+};
+app.use(cors(corsOptions));
 
-app.use(express.static('public'));
+// Servir archivos estáticos
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Configuración mejorada de Socket.IO
+// Configuración Socket.IO
 const io = new Server(server, {
-  cors: {
-    origin: isProduction ? 'https://arbitraje-taekwondo.onrender.com' : 'http://localhost:3000',
-    methods: ["GET", "POST"]
+  cors: corsOptions,
+  connectionStateRecovery: {
+    maxDisconnectionDuration: 2 * 60 * 1000, // 2 minutos
+    skipMiddlewares: true
   }
 });
 
@@ -94,53 +99,50 @@ io.on('connection', (socket) => {
   });
 
   // Manejador genérico de puntuación
-  const handlePuntuacion = (eventName, points) => {
+ const createPointHandler = (eventName, points) => {
     socket.on(eventName, (data) => {
       if (!gameState.gameActive) return;
 
       const { equipo, timestamp } = data;
       const now = Date.now();
 
-      if (now - timestamp <= 5000) {
-        anotacionesTemporales[equipo].push({ timestamp, clienteId: socket.id });
+      if (now - timestamp > 5000) return;
 
-        if (timeoutId) clearTimeout(timeoutId);
+      anotacionesTemporales[equipo].push({ timestamp, clienteId: socket.id });
 
-        if (anotacionesTemporales[equipo].length >= 2) {
-          const [first, last] = [
-            anotacionesTemporales[equipo][0],
-            anotacionesTemporales[equipo].slice(-1)[0]
-          ];
+      clearTimeout(timeoutId);
 
-          if (first.clienteId !== last.clienteId && 
-              (last.timestamp - first.timestamp) <= 5000) {
-            gameState[`${equipo}Score`] += points;
-            anotacionesTemporales[equipo] = [];
-            
-            io.emit('actualizarPuntaje', {
-              blueScore: gameState.blueScore,
-              redScore: gameState.redScore
-            });
-            
-            checkScoreDifference();
-          } else {
-            anotacionesTemporales[equipo].shift();
-          }
+      if (anotacionesTemporales[equipo].length >= 2) {
+        const [first, last] = [
+          anotacionesTemporales[equipo][0], 
+          anotacionesTemporales[equipo].slice(-1)[0]
+        ];
+
+        if (first.clienteId !== last.clienteId && 
+            (last.timestamp - first.timestamp) <= 5000) {
+          
+          gameState[`${equipo}Score`] += points;
+          anotacionesTemporales[equipo] = [];
+          
+          io.emit('actualizarPuntaje', gameState);
+          checkScoreDifference();
         } else {
-          timeoutId = setTimeout(() => {
-            anotacionesTemporales[equipo] = [];
-          }, 5000);
+          anotacionesTemporales[equipo].shift();
         }
+      } else {
+        timeoutId = setTimeout(() => {
+          anotacionesTemporales[equipo] = [];
+        }, 5000);
       }
     });
   };
 
-  // Registrar handlers de puntuación
-  handlePuntuacion('puntuacionCabeza', 3);
-  handlePuntuacion('puntuacionPeto', 2);
-  handlePuntuacion('puntuacionGiroPeto', 4);
-  handlePuntuacion('puntuacionGiroCabeza', 5);
-  handlePuntuacion('puntuacionPuño', 1);
+  // Registrar handlers
+  createPointHandler('puntuacionCabeza', 3);
+  createPointHandler('puntuacionPeto', 2);
+  createPointHandler('puntuacionGiroPeto', 4);
+  createPointHandler('puntuacionGiroCabeza', 5);
+  createPointHandler('puntuacionPuño', 1);
 
   // Eventos adicionales
   socket.on('puntuacionRestar', (data) => {
@@ -198,8 +200,14 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/public/index.html');
 });
 
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Algo salió mal!');
+});
+
 // Iniciar servidor
 server.listen(PORT, () => {
-  console.log(`Servidor escuchando en ${isProduction ? CLIENT_URL : `http://localhost:${PORT}`}`);
-  console.log(`Socket.IO configurado para: ${CLIENT_URL}`);
+  console.log(`Servidor escuchando en puerto ${PORT}`);
+  console.log(`Modo: ${isProduction ? 'PRODUCCIÓN' : 'DESARROLLO'}`);
+  console.log(`URL del cliente: ${CLIENT_URL}`);
 });
