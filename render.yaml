@@ -4,6 +4,7 @@ services:
     runtime: node
     buildCommand: npm install
     startCommand: node server.js
+    env: node
     envVars:
-      - key: PORT
-        value: 3000
+      - key: NODE_ENV
+        value: production
