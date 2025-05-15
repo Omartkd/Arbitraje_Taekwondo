@@ -261,7 +261,7 @@ function checkScoreDifference() {
     }
   }
 
- server.listen(PORT, () => {
+// Verificar que el servidor esté escuchando en el puerto 3000
+server.listen(PORT, () => {
     console.log(`Servidor escuchando en ${isProduction ? CLIENT_URL : `http://localhost:${PORT}`}`);
 });
-
