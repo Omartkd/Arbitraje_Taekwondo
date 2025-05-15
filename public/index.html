@@ -542,6 +542,10 @@
     }
   });
 
+  socket.onAny((event, ...args) => {
+  console.log("Evento recibido:", event, args);
+});
+
   // Manejo de eventos de conexión
   socket.on('connect', () => {
     console.log('Conectado al servidor de arbitraje');
