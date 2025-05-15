@@ -4,7 +4,6 @@ const http = require('http');
 const server = http.createServer(app);
 const { Server } = require("socket.io");
 const cors = require('cors');
-const path = require('path');
 
 // Configuración para producción
 const isProduction = process.env.NODE_ENV === 'production';
@@ -13,28 +12,28 @@ const CLIENT_URL = isProduction
   ? 'https://arbitraje-taekwondo.onrender.com' 
   : 'http://localhost:3000';
 
-// Configuración simplificada de CORS
-const corsOptions = {
-  origin: CLIENT_URL,
-  methods: ["GET", "POST"],
-  credentials: true
-};
-app.use(cors(corsOptions));
+// Configuración mínima de CORS (solo lo esencial)
+if (isProduction) {
+  app.use(cors({
+    origin: CLIENT_URL,
+    methods: ["GET", "POST"]
+  }));
+}
 
-// Servir archivos estáticos
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static('public'));
 
-// Configuración Socket.IO
-const io = new Server(server, {
+// Configuración Socket.IO (manteniendo tu lógica original)
+const io = new Server(server, isProduction ? {
   cors: {
     origin: CLIENT_URL,
-    methods: ["GET", "POST"],
-    credentials: true
+    methods: ["GET", "POST"]
   },
-  transports: ['websocket', 'polling'], // Añade esto
+  // Opciones adicionales para producción
+  transports: ['websocket'],
   pingTimeout: 60000,
   pingInterval: 25000
-});
+} : {});
+
 // Variables de estado del juego
 let gameState = {
   blueScore: 0,
@@ -55,161 +54,214 @@ let anotacionesTemporales = {
 
 let timeoutId = null;
 
-// Función para verificar diferencia de puntuación
-function checkScoreDifference() {
-  if (!gameState.gameActive) return;
-
-  const blueScore = gameState.blueScore;
-  const redScore = gameState.redScore;
-  const difference = Math.abs(blueScore - redScore);
-  
-  if (difference >= 12) {
-    gameState.gameActive = false;
-    const winner = blueScore > redScore ? 'azul' : 'rojo';
-    
-    const victoryData = {
-      winner: winner,
-      blueScore: blueScore,
-      redScore: redScore,
-      difference: difference,
-      timestamp: Date.now()
-    };
-    
-    try {
-      io.emit('victoriaPorDiferencia', victoryData);
-      console.log(`¡El equipo ${winner} gana por diferencia de ${difference} puntos!`);
-    } catch (error) {
-      console.error("Error al emitir victoria:", error);
-      gameState.gameActive = true;
-    }
-  }
-}
-
-// Conexiones Socket.IO
 io.on('connection', (socket) => {
-  console.log('Cliente conectado:', socket.id);
+  console.log('Un cliente se ha conectado:', socket.id);
 
-  // Enviar estado inicial
+  // Enviar estado inicial al cliente
   socket.emit('actualizarPuntaje', {
     blueScore: gameState.blueScore,
-    redScore: gameState.redScore
+    redScore: gameState.redScore,
   });
 
-  socket.emit('actualizarKamgeon', {
-    blueKamgeon: kamgeonState.blueScore,
-    redKamgeon: kamgeonState.redScore
-  });
-
-  // Manejador genérico de puntuación
- const createPointHandler = (eventName, points) => {
+  // Manejadores de eventos de puntuación
+  const handlePuntuacion = (eventName, points) => {
     socket.on(eventName, (data) => {
       if (!gameState.gameActive) return;
 
       const { equipo, timestamp } = data;
       const now = Date.now();
 
-      if (now - timestamp > 5000) return;
+      if (now - timestamp <= 5000) {
+        anotacionesTemporales[equipo].push({ timestamp, clienteId: socket.id });
 
-      anotacionesTemporales[equipo].push({ timestamp, clienteId: socket.id });
-
-      clearTimeout(timeoutId);
-
-      if (anotacionesTemporales[equipo].length >= 2) {
-        const [first, last] = [
-          anotacionesTemporales[equipo][0], 
-          anotacionesTemporales[equipo].slice(-1)[0]
-        ];
-
-        if (first.clienteId !== last.clienteId && 
-            (last.timestamp - first.timestamp) <= 5000) {
-          
-          gameState[`${equipo}Score`] += points;
-          anotacionesTemporales[equipo] = [];
-          
-          io.emit('actualizarPuntaje', gameState);
-          checkScoreDifference();
-        } else {
-          anotacionesTemporales[equipo].shift();
+        if (timeoutId) {
+          clearTimeout(timeoutId);
         }
-      } else {
-        timeoutId = setTimeout(() => {
-          anotacionesTemporales[equipo] = [];
-        }, 5000);
+
+        if (anotacionesTemporales[equipo].length >= 2) {
+          const anotaciones = anotacionesTemporales[equipo];
+          const primeraAnotacion = anotaciones[0];
+          const ultimaAnotacion = anotaciones[anotaciones.length - 1];
+
+          if (primeraAnotacion.clienteId !== ultimaAnotacion.clienteId) {
+            const diferencia = Math.abs(primeraAnotacion.timestamp - ultimaAnotacion.timestamp);
+
+            if (diferencia <= 5000) {
+              if (equipo === 'azul') {
+                gameState.blueScore += points;
+              } else {
+                gameState.redScore += points;
+              }
+
+              io.emit('actualizarPuntaje', {
+                blueScore: gameState.blueScore,
+                redScore: gameState.redScore
+              });
+
+              anotacionesTemporales[equipo] = [];
+              checkScoreDifference();
+            } else {
+              anotacionesTemporales[equipo].shift();
+            }
+          } else {
+            anotacionesTemporales[equipo].shift();
+          }
+        } else {
+          timeoutId = setTimeout(() => {
+            anotacionesTemporales[equipo] = [];
+          }, 5000);
+        }
       }
     });
   };
 
-  // Registrar handlers
-  createPointHandler('puntuacionCabeza', 3);
-  createPointHandler('puntuacionPeto', 2);
-  createPointHandler('puntuacionGiroPeto', 4);
-  createPointHandler('puntuacionGiroCabeza', 5);
-  createPointHandler('puntuacionPuño', 1);
+  // Configurar handlers para cada tipo de puntuación
+  handlePuntuacion('puntuacionCabeza', 3);
+  handlePuntuacion('puntuacionPeto', 2);
+  handlePuntuacion('puntuacionGiroPeto', 4);
+  handlePuntuacion('puntuacionGiroCabeza', 5);
+  handlePuntuacion('puntuacionPuño', 1);
 
-  // Eventos adicionales
-  socket.on('puntuacionRestar', (data) => {
-    if (!gameState.gameActive) return;
-    const { equipo } = data;
-    gameState[`${equipo}Score`] = Math.max(gameState[`${equipo}Score`] - 1, 0);
-    io.emit('actualizarPuntaje', gameState);
-    checkScoreDifference();
-  });
-
-  socket.on('puntuacionSumar', (data) => {
-    if (!gameState.gameActive) return;
-    const { equipo } = data;
-    gameState[`${equipo}Score`] += 1;
-    io.emit('actualizarPuntaje', gameState);
-    checkScoreDifference();
-  });
-
-  socket.on('puntuacionKamgeon', (data) => {
-    if (!gameState.gameActive) return;
-    const { equipo } = data;
-    kamgeonState[`${equipo}Score`] += 1;
-    io.emit('actualizarKamgeon', kamgeonState);
-  });
-
-  socket.on('resetGame', () => {
-    gameState = {
-      blueScore: 0,
-      redScore: 0,
-      gameActive: true
-    };
-    kamgeonState = {
-      blueScore: 0,
-      redScore: 0
-    };
-    anotacionesTemporales = { azul: [], rojo: [] };
-    clearTimeout(timeoutId);
-    timeoutId = null;
     
-    io.emit('actualizarPuntaje', gameState);
-    io.emit('actualizarKamgeon', kamgeonState);
-    io.emit('gameReset');
+    socket.on('puntuacionRestar', (data) => {
+        if (!gameState.gameActive) return;
     
-    console.log('Juego reiniciado');
-  });
+        const { equipo } = data;
+        
+        if (equipo === 'azul') {
+          gameState.blueScore = Math.max(gameState.blueScore - 1, 0);
+        } else {
+          gameState.redScore = Math.max(gameState.redScore - 1, 0);
+        }
+    
+        io.emit('actualizarPuntaje', {
+          blueScore: gameState.blueScore,
+          redScore: gameState.redScore
+        });
+    
+        checkScoreDifference();
+      });
 
+      socket.on('puntuacionSumar', (data) => {
+        if (!gameState.gameActive) return;
+    
+        const { equipo } = data;
+        
+        if (equipo === 'azul') {
+          gameState.blueScore += 1;
+        } else {
+          gameState.redScore += 1;
+        }
+    
+        io.emit('actualizarPuntaje', {
+          blueScore: gameState.blueScore,
+          redScore: gameState.redScore
+        });
+    
+        checkScoreDifference();
+      });
+
+      socket.on('puntuacionKamgeon', (data) => {
+        if (!gameState.gameActive) return;
+    
+        const { equipo } = data;
+        
+        // Sumar punto Kamgeon al equipo correspondiente
+        if (equipo === 'azul') {
+            kamgeonState.blueScore += 1;
+        } else {
+            kamgeonState.redScore += 1;
+        }
+    
+        // Enviar actualización solo de los puntos Kamgeon
+        io.emit('actualizarKamgeon', {
+            blueKamgeon: kamgeonState.blueScore,
+            redKamgeon: kamgeonState.redScore
+        });
+
+      });
+
+      socket.on('resetGame', () => {
+        gameState.blueScore = 0;
+        gameState.redScore = 0;
+        kamgeonState.blueScore = 0;
+        kamgeonState.redScore = 0;
+        gameState.gameActive = true;
+        
+        anotacionesTemporales = {
+          azul: [],
+          rojo: []
+        };
+        
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+          timeoutId = null;
+        }
+        
+        io.emit('actualizarPuntaje', {
+          blueScore: gameState.blueScore,
+          redScore: gameState.redScore
+        });
+
+        io.emit('actualizarKamgeon', {
+          blueKamgeon: 0,
+          redKamgeon: 0
+      });
+        
+        io.emit('gameReset');
+        
+        console.log('Juego reiniciado');
+      });
+    
+    
+    socket.on('disconnect', () => {
+        console.log('Un cliente se ha desconectado');
+    });
+});
+
+function checkScoreDifference() {
+    // Verificar que el juego esté activo antes de hacer cualquier comprobación
+    if (!gameState.gameActive) return;
   
-  socket.on('disconnect', () => {
-    console.log('Cliente desconectado:', socket.id);
-  });
-});
+    const blueScore = gameState.blueScore;
+    const redScore = gameState.redScore;
+    const difference = Math.abs(blueScore - redScore);
+    
+    // Solo declarar ganador si la diferencia es exactamente 12 o más
+    if (difference >= 12) {
+      // Desactivar el juego primero para evitar condiciones de carrera
+      gameState.gameActive = false;
+      
+      // Determinar el ganador
+      const winner = blueScore > redScore ? 'azul' : 'rojo';
+      
+      // Crear objeto de datos para el evento
+      const victoryData = {
+        winner: winner,
+        blueScore: blueScore,
+        redScore: redScore,
+        difference: difference,
+        timestamp: Date.now()
+      };
+      
+      try {
+        // Emitir el evento de victoria a todos los clientes
+        io.emit('victoriaPorDiferencia', victoryData);
+        
+        console.log(`¡El equipo ${winner} gana por diferencia de ${difference} puntos!`);
+        console.log('Puntuación final:', `Azul: ${blueScore} - Rojo: ${redScore}`);
+        
+        // Opcional: Reiniciar el juego después de un tiempo
+        // setTimeout(() => resetGame(), 10000);
+      } catch (error) {
+        console.error('Error al emitir evento de victoria:', error);
+        // Reactivar el juego si hubo un error
+        gameState.gameActive = true;
+      }
+    }
+  }
 
-// Ruta principal
-app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/public/index.html');
-});
-
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send('Algo salió mal!');
-});
-
-// Iniciar servidor
+// Verificar que el servidor esté escuchando en el puerto 3000
 server.listen(PORT, () => {
-  console.log(`Servidor escuchando en puerto ${PORT}`);
-  console.log(`Modo: ${isProduction ? 'PRODUCCIÓN' : 'DESARROLLO'}`);
-  console.log(`URL del cliente: ${CLIENT_URL}`);
+    console.log(`Servidor escuchando en ${isProduction ? CLIENT_URL : `http://localhost:${PORT}`}`);
 });
