@@ -262,4 +262,4 @@ function checkScoreDifference() {
   }
 
     console.log(`Servidor escuchando en ${isProduction ? CLIENT_URL : `http://localhost:${PORT}`}`);
-});
+
