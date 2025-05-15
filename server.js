@@ -8,10 +8,10 @@ const path = require('path');
 
 // Configuración para producción
 const isProduction = process.env.NODE_ENV === 'production';
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 const CLIENT_URL = isProduction 
   ? 'https://arbitraje-taekwondo.onrender.com' 
-  : 'http://localhost:3000';
+  : 'http://localhost:10000';
 
 // Configuración simplificada de CORS
 const corsOptions = {
