@@ -194,6 +194,13 @@ io.on('connection', (socket) => {
     console.log('Juego reiniciado');
   });
 
+  io.on('connection', (socket) => {
+  console.log('Cliente conectado:', socket.id, socket.handshake.headers);
+
+  socket.on('puntuacionCabeza', (data) => {
+    console.log('Puntuación cabeza recibida:', data);
+  });
+
   socket.on('disconnect', () => {
     console.log('Cliente desconectado:', socket.id);
   });
