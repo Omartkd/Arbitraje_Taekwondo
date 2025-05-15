@@ -526,7 +526,8 @@
 <title>Boleta de Arbitraje</title>
 <script src="/socket.io/socket.io.js"></script>
 <script>
-  const socket = io(isProduction 
+  // En tu archivo HTML, cambia solo la conexión Socket.IO:
+const socket = io(isProduction 
   ? "https://arbitraje-taekwondo.onrender.com" 
   : "http://localhost:3000", {
   transports: ['websocket']
