@@ -524,47 +524,27 @@
 </script>
 
 <title>Boleta de Arbitraje</title>
-<script src="/socket.io/socket.io.js"></script>
+<script src="https://arbitraje-taekwondo.onrender.com/socket.io/socket.io.js"></script>
 <script>
   // Configuración de conexión Socket.IO para producción
- const socket = io("https://arbitraje-taekwondo.onrender.com", {
-    path: "/socket.io/",
-    transports: ['websocket'],
-    upgrade: false,
-    reconnection: true,
-    reconnectionAttempts: 5,
-    reconnectionDelay: 1000,
-    timeout: 20000,
-    secure: true,
-    rejectUnauthorized: false,
-    query: {
-      clientType: 'scoreboard'
-    }
-  });
-
-  socket.onAny((event, ...args) => {
-  console.log("Evento recibido:", event, args);
+ // Configuración básica suficiente
+const socket = io("https://arbitraje-taekwondo.onrender.com", {
+  withCredentials: true,
+  reconnection: true,
+  reconnectionAttempts: 5,
+  reconnectionDelay: 1000
 });
 
-  // Manejo de eventos de conexión
-  socket.on('connect', () => {
-    console.log('Conectado al servidor de arbitraje');
-    document.querySelectorAll('.puntuacion-btn').forEach(btn => {
-      btn.disabled = false;
-    });
-  });
+// Manejo básico de eventos de conexión
+socket.on('connect', () => {
+  console.log('Conectado al servidor');
+  document.querySelectorAll('button').forEach(btn => btn.disabled = false);
+});
 
-  socket.on('disconnect', (reason) => {
-    console.log('Desconectado del servidor:', reason);
-    if (reason === 'io server disconnect') {
-      socket.connect();
-    }
-  });
-
-  socket.on('connect_error', (error) => {
-    console.error('Error de conexión:', error.message);
-    setTimeout(() => socket.connect(), 5000);
-  });
+socket.on('disconnect', () => {
+  console.log('Desconectado del servidor');
+  document.querySelectorAll('button').forEach(btn => btn.disabled = true);
+});
 
   // Mapeo de botones corregido (IDs exactos)
   const buttons = {
