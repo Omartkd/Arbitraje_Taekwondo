@@ -261,5 +261,7 @@ function checkScoreDifference() {
     }
   }
 
+ server.listen(PORT, () => {
     console.log(`Servidor escuchando en ${isProduction ? CLIENT_URL : `http://localhost:${PORT}`}`);
+});
 
