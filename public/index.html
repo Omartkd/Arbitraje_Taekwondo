@@ -528,21 +528,14 @@
 <script>
   // Configuración de conexión Socket.IO para producción
  // Configuración básica suficiente
-const socket = io(isProduction 
-  ? "https://arbitraje-taekwondo.onrender.com" 
-  : "http://localhost:3000");
-
-// Manejo básico de eventos de conexión
-socket.on('connect', () => {
-  console.log('Conectado al servidor');
-  document.querySelectorAll('button').forEach(btn => btn.disabled = false);
+const socket = io("https://arbitraje-taekwondo.onrender.com", {
+  transports: ['websocket'],
+  upgrade: false,
+  reconnection: true,
+  reconnectionAttempts: Infinity,
+  reconnectionDelay: 1000,
+  timeout: 20000
 });
-
-socket.on('disconnect', () => {
-  console.log('Desconectado del servidor');
-  document.querySelectorAll('button').forEach(btn => btn.disabled = true);
-});
-
   // Mapeo de botones corregido (IDs exactos)
   const buttons = {
     blueHeadKick: document.getElementById('blueHeadKickButton'),
