@@ -26,13 +26,15 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Configuración Socket.IO
 const io = new Server(server, {
-  cors: corsOptions,
-  connectionStateRecovery: {
-    maxDisconnectionDuration: 2 * 60 * 1000, // 2 minutos
-    skipMiddlewares: true
-  }
+  cors: {
+    origin: CLIENT_URL,
+    methods: ["GET", "POST"],
+    credentials: true
+  },
+  transports: ['websocket', 'polling'], // Añade esto
+  pingTimeout: 60000,
+  pingInterval: 25000
 });
-
 // Variables de estado del juego
 let gameState = {
   blueScore: 0,
