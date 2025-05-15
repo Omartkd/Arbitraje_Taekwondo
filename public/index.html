@@ -528,12 +528,9 @@
 <script>
   // Configuración de conexión Socket.IO para producción
  // Configuración básica suficiente
-const socket = io("https://arbitraje-taekwondo.onrender.com", {
-  withCredentials: true,
-  reconnection: true,
-  reconnectionAttempts: 5,
-  reconnectionDelay: 1000
-});
+const socket = io(isProduction 
+  ? "https://arbitraje-taekwondo.onrender.com" 
+  : "http://localhost:3000");
 
 // Manejo básico de eventos de conexión
 socket.on('connect', () => {
