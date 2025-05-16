@@ -527,11 +527,31 @@
 <script src="/socket.io/socket.io.js"></script>
 <script>
   // En tu archivo HTML, cambia solo la conexión Socket.IO:
+const isProduction = window.location.host !== 'localhost:3000';
 const socket = io(isProduction 
   ? "https://arbitraje-taekwondo.onrender.com" 
   : "http://localhost:3000", {
-  transports: ['websocket']
+  reconnection: true,
+  reconnectionAttempts: Infinity,
+  reconnectionDelay: 1000,
+  transports: ['websocket'],
+  upgrade: false,
+  timeout: 20000
 });
+
+// Manejo de eventos de conexión
+socket.on('connect', () => {
+  console.log('Conectado al servidor');
+  setupEventListeners(); // Mueve los listeners aquí
+});
+
+socket.on('disconnect', (reason) => {
+  console.log('Desconectado:', reason);
+  if (reason === 'io server disconnect') {
+    socket.connect();
+  }
+});
+
   const blueHeadKickButton = document.getElementById('blueHeadKickButton');
   const redHeadKickButton = document.getElementById('redHeadKickButton');
   const blueBodykickButton = document.getElementById('bluebodykickButton');
