@@ -23,16 +23,22 @@ if (isProduction) {
 app.use(express.static('public'));
 
 // Configuración Socket.IO (manteniendo tu lógica original)
-const io = new Server(server, isProduction ? {
+// Configuración mejorada de Socket.IO
+const io = new Server(server, {
   cors: {
     origin: CLIENT_URL,
-    methods: ["GET", "POST"]
+    methods: ["GET", "POST"],
+    credentials: true
   },
-  // Opciones adicionales para producción
-  transports: ['websocket'],
+  // Opciones críticas de estabilidad
   pingTimeout: 60000,
-  pingInterval: 25000
-} : {});
+  pingInterval: 25000,
+  connectionStateRecovery: {
+    maxDisconnectionDuration: 120000,
+    skipMiddlewares: true
+  },
+  transports: ['websocket', 'polling']
+});
 
 // Variables de estado del juego
 let gameState = {
